@@ -226,7 +226,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // CRÍTICO: Só salvar se realmente houver usuários para não sobrescrever
     if (Object.keys(state.users).length > 0) {
       localStorage.setItem('3d-printing-users', JSON.stringify(state.users));
-      console.log('💾 Usuários salvos:', Object.keys(state.users));
+      console.log('💾 Usuários salvos no localStorage:', Object.keys(state.users));
+      console.log('📊 Total de usuários salvos:', Object.keys(state.users).length);
+      console.log('🔍 Dados completos salvos:', JSON.stringify(state.users, null, 2));
     } else {
       console.warn('⚠️ Tentativa de salvar estado vazio - ignorando para preservar dados');
     }
@@ -273,6 +275,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const createUser = (data: {email: string; password: string; role?: 'admin'|'user'; username?: string}): boolean => {
+    console.log('🔧 Tentando criar usuário:', data);
+    console.log('👤 Usuário atual:', state.currentUser);
+    console.log('🔑 É admin?', state.currentUser?.role === 'admin');
+    
     if (!state.currentUser || state.currentUser.role !== 'admin') return false;
 
     const email = data.email.trim();
@@ -282,17 +288,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const existsByEmail = Object.values(state.users).some(
       u => u.user.email?.toLowerCase() === email.toLowerCase()
     );
-    if (existsByEmail) return false;
+    if (existsByEmail) {
+      console.log('❌ E-mail já existe:', email);
+      return false;
+    }
 
     // gerar/validar username único (chave do mapa)
     const base = (data.username?.trim().toLowerCase()) || slugFromEmail(email);
     const username = pickUniqueUsername(base, state.users);
 
+    console.log('✅ Criando usuário:', { username, email, role });
+    
     // criar user
     dispatch({
       type: 'CREATE_USER',
       payload: { username, email, password: data.password, role }
     });
+    
+    console.log('🎉 Usuário criado com sucesso!');
     return true;
   };
 
