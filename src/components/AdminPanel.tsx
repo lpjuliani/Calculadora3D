@@ -20,35 +20,46 @@ const AdminPanel: React.FC = () => {
     e.preventDefault();
     setMessage('');
     
+    console.log('🚀 Iniciando criação de usuário...');
+    console.log('📝 Dados do formulário:', formData);
+    
     const email = formData.email.trim();
     const password = formData.password;
 
     if (!email || !password) {
       setMessage('E-mail e senha são obrigatórios');
       setMessageType('error');
+      console.log('❌ Campos obrigatórios não preenchidos');
       return;
     }
     
     if (!email.includes('@')) {
       setMessage('Digite um e-mail válido');
       setMessageType('error');
+      console.log('❌ E-mail inválido:', email);
       return;
     }
 
     if (password.length < 6) {
       setMessage('A senha deve ter pelo menos 6 caracteres');
       setMessageType('error');
+      console.log('❌ Senha muito curta:', password.length, 'caracteres');
       return;
     }
 
+    console.log('✅ Validações passaram, chamando createUser...');
     const ok = createUser({ email, password, role: formData.role });
+    console.log('🔍 Resultado do createUser:', ok);
+    
     if (ok) {
       setMessage('Acesso criado! O usuário poderá entrar usando o e-mail ou o usuário gerado.');
       setMessageType('success');
       setFormData({ email: '', password: '', role: 'user' });
+      console.log('🎉 Usuário criado com sucesso na interface!');
     } else {
       setMessage('Não foi possível criar (e-mail já usado ou sem permissão).');
       setMessageType('error');
+      console.log('❌ Falha ao criar usuário na interface');
     }
   };
 
